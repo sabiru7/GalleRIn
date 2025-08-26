@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GalleRin</title>
+  <title>PinPage Gradasi Biru-Ungu</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -141,7 +141,7 @@
 
   <!-- Hero Section -->
   <section id="hero" class="hero">
-    <h1>Selamat Datang di GalleRin</h1>
+    <h1>Selamat Datang di PinPage</h1>
     <p>Temukan inspirasi, ide, dan kreativitas tanpa batas</p>
     <a href="#pins" class="btn btn-light btn-lg mt-3">Jelajahi Pins</a>
   </section>
@@ -216,14 +216,22 @@
       const btn = document.createElement('button');
       btn.className = 'nav-btn';
       btn.innerText = 'Login';
-          btn.onmouseover = function() {
-            // Add hover logic here if needed
-          };
-          li.appendChild(btn);
-          navbarMenu.appendChild(li);
-        }
-    
-        if (!isLoggedIn) {
-          createLoginButton();
-        }
-      </script>
+      btn.onmouseover = () => {
+        btn.style.transform = 'translateY(-3px)';
+        btn.style.boxShadow = '0 6px 12px rgba(0,0,0,0.2)';
+      };
+      btn.onmouseout = () => {
+        btn.style.transform = 'translateY(0)';
+        btn.style.boxShadow = 'none';
+      };
+      btn.onclick = () => alert('Login clicked');
+      li.appendChild(btn);
+      return li;
+    }
+
+    if(!isLoggedIn){
+      navbarMenu.appendChild(createLoginButton());
+    }
+  </script>
+</body>
+</html>
