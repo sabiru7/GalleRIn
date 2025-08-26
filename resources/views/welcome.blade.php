@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PinPage Gradasi Biru-Ungu</title>
+  <title>GalleRin</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -125,7 +125,7 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-light fixed-top shadow-sm">
     <div class="container">
-      <a class="navbar-brand" href="#">PinPage</a>
+      <a class="navbar-brand" href="#">GalleRin</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -141,7 +141,7 @@
 
   <!-- Hero Section -->
   <section id="hero" class="hero">
-    <h1>Selamat Datang di PinPage</h1>
+    <h1>Selamat Datang di GalleRIn</h1>
     <p>Temukan inspirasi, ide, dan kreativitas tanpa batas</p>
     <a href="#pins" class="btn btn-light btn-lg mt-3">Jelajahi Pins</a>
   </section>
