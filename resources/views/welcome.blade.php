@@ -1,237 +1,366 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GalleRin</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GallSpace - Temukan Inspirasi Tanpa Batas</title>
 
-  <!-- Bootstrap CSS -->
+  <!-- Bootstrap & Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
-    body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; }
+    :root {
+      --primary: #a594f9;
+      --accent: #c8b6ff;
+      --light-accent: #f4f2ff;
+      --bg: #ffffff;
+      --gray: #fafafc;
+      --text: #3c3c43;
+      --shadow: rgba(0, 0, 0, 0.07);
+    }
 
-    /* Navbar */
+    /* 🌙 Dark Mode Variables */
+    :root.dark {
+      --primary: #8b7ae6;
+      --accent: #6f5ce6;
+      --light-accent: rgba(140,125,230,0.08);
+      --bg: #0f1115;
+      --gray: #0b0c0e;
+      --text: #e6e6ea;
+      --shadow: rgba(0, 0, 0, 0.6);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--gray);
+      color: var(--text);
+      margin: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      background-color: var(--bg);
+      box-shadow: 0 1px 6px var(--shadow);
+      padding: 0.5rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
     .navbar-brand {
       font-weight: 700;
-      background: linear-gradient(135deg, #4a90e2, #9b59b6);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-size: 1.5rem;
+      color: var(--primary);
+      letter-spacing: -0.5px;
     }
-    .nav-btn {
-      margin-left: 0.5rem;
-      font-weight: 600;
-      border-radius: 5px;
+
+    /* SEARCH BAR */
+    .search-bar {
+      flex: 1;
+      margin: 0 1.5rem;
+      max-width: 600px;
+      position: relative;
+    }
+
+    .search-bar input {
+      width: 100%;
+      border-radius: 30px;
       border: none;
-      padding: 5px 15px;
+      background-color: var(--light-accent);
+      padding: 10px 18px 10px 40px;
+      outline: none;
+      font-size: 0.95rem;
+      color: var(--text);
       transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+      background-color: #fff;
+      box-shadow: 0 0 0 3px var(--accent);
+    }
+
+    .search-bar i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
+    /* NAV ICONS */
+    .nav-icons i {
+      font-size: 1.25rem;
+      margin-left: 15px;
       cursor: pointer;
-      background: linear-gradient(135deg, #4a90e2, #9b59b6);
-      color: white;
-    }
-    .nav-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      color: var(--text);
+      background-color: transparent;
+      padding: 10px;
+      border-radius: 50%;
+      transition: all 0.2s ease;
     }
 
-    /* Hero Section */
-    .hero {
-      background: linear-gradient(135deg, #4a90e2, #9b59b6);
-      color: white; 
-      text-align: center; 
-      padding: 140px 15px 80px 15px;
-      border-bottom-left-radius: 50% 10%; 
-      border-bottom-right-radius: 50% 10%;
+    .nav-icons i:hover {
+      background-color: var(--light-accent);
+      color: var(--primary);
+      transform: scale(1.1);
     }
-    .hero h1 { font-size: 3rem; font-weight: 700; }
-    .hero p { font-size: 1.2rem; color: #eef2f7; }
-    .hero .btn-light {
-      background: linear-gradient(135deg, #36d1dc, #5b86e5);
-      color: white;
-      border: none;
+
+    /* PROFILE ICON */
+    .profile-icon a {
+      color: var(--primary);
+      font-size: 1.8rem;
+      margin-left: 18px;
+      background-color: var(--light-accent);
+      border-radius: 50%;
+      padding: 6px;
       transition: all 0.3s ease;
     }
-    .hero .btn-light:hover {
-      background: linear-gradient(135deg, #5b86e5, #36d1dc);
-      transform: translateY(-3px);
+
+    .profile-icon a:hover {
+      background-color: var(--accent);
+      color: #fff;
+      transform: scale(1.1);
+      box-shadow: 0 4px 10px rgba(165, 148, 249, 0.3);
     }
 
-    /* Pins Section */
-    .grid-container { 
-      column-count: 4; column-gap: 1rem; padding: 2rem; 
+    /* 🌗 THEME TOGGLE */
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      margin-left: 15px;
+      border-radius: 50%;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text);
+      border: none;
+      transition: background .18s ease, transform .12s ease, color .18s ease;
     }
-    @media (max-width: 1200px){ .grid-container{ column-count:3; } }
-    @media (max-width: 768px){ .grid-container{ column-count:2; } }
-    @media (max-width: 576px){ .grid-container{ column-count:1; } }
+
+    .theme-toggle:hover {
+      background: var(--light-accent);
+      color: var(--primary);
+      transform: scale(1.07);
+    }
+
+    .theme-toggle.active {
+      background: var(--light-accent);
+      color: var(--primary);
+      transform: scale(1.07);
+    }
+
+    /* GRID (Pinterest Style) */
+    .masonry {
+      column-count: 5;
+      column-gap: 1rem;
+      padding: 1.2rem;
+    }
+
+    @media (max-width: 1400px) { .masonry { column-count: 4; } }
+    @media (max-width: 992px) { .masonry { column-count: 3; } }
+    @media (max-width: 768px) { .masonry { column-count: 2; } }
+    @media (max-width: 576px) { .masonry { column-count: 1; } }
 
     .pin {
-      break-inside: avoid; 
-      background: white; 
+      background-color: var(--bg);
+      border-radius: 16px;
       margin-bottom: 1rem;
-      border-radius: 15px; 
-      overflow: hidden; 
-      box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .pin:hover { 
-      transform: translateY(-5px); 
-      box-shadow: 0 12px 25px rgba(0,0,0,0.15); 
-    }
-    .pin img { width: 100%; display: block; border-bottom: 1px solid #eee; }
-    .pin-body { padding: 0.75rem 1rem 1rem 1rem; }
-    .pin-body h5 {
-      margin: 0.5rem 0;
-      background: linear-gradient(135deg, #4a90e2, #9b59b6);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .pin-body p { color: #666; font-size: 0.95rem; }
-
-    /* Contact Section */
-    #contact { 
-      padding: 80px 15px; 
-      background: linear-gradient(135deg, #4a90e2, #9b59b6);
-      color: white; 
-      text-align: center;
-    }
-    #contact input, #contact textarea {
-      border-radius: 5px;
-      border: none;
-    }
-    #contact button {
-      background: linear-gradient(135deg, #36d1dc, #5b86e5);
-      color: white;
-      border: none;
-      transition: all 0.3s ease;
-    }
-    #contact button:hover {
-      background: linear-gradient(135deg, #5b86e5, #36d1dc);
-      transform: translateY(-3px);
+      overflow: hidden;
+      break-inside: avoid;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: all 0.25s ease;
+      opacity: 0;
+      transform: translateY(15px);
+      animation: fadeInUp 0.6s forwards;
     }
 
-    /* Footer */
-    footer { text-align: center; padding: 25px; background: #222; color: #aaa; }
-    footer p { margin: 0; font-size: 0.9rem; }
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .pin:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 6px 16px rgba(165, 148, 249, 0.25);
+    }
+
+    .pin img {
+      width: 100%;
+      display: block;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .pin-info {
+      padding: 10px 14px 14px;
+    }
+
+    .pin-info h6 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--primary);
+    }
+
+    .pin-info p {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 3px;
+    }
+
+    /* FLOATING UPLOAD BUTTON */
+    .upload-btn {
+      position: fixed;
+      bottom: 26px;
+      right: 26px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: 0 6px 14px rgba(165, 148, 249, 0.35);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .upload-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px rgba(165, 148, 249, 0.45);
+    }
   </style>
 </head>
+
 <body>
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-light fixed-top shadow-sm">
-    <div class="container">
-      <a class="navbar-brand" href="#">GalleRin</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="#">GallSpace</a>
+
+    <div class="search-bar">
+      <i class="bi bi-search"></i>
+      <input type="text" placeholder="Cari inspirasi seperti 'dekorasi kamar pastel'...">
+    </div>
+
+    <div class="d-flex align-items-center">
+      <div class="nav-icons">
+        <i class="bi bi-house-door-fill"></i>
+        <i class="bi bi-bell-fill"></i>
+        <i class="bi bi-chat-dots-fill"></i>
+      </div>
+
+      <!-- 🌙 DARK MODE TOGGLE -->
+      <button id="themeToggle" class="theme-toggle" title="Ganti tema">
+        <i class="bi bi-moon-stars-fill"></i>
       </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto" id="navbarMenu">
-          <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="#pins">Pins</a></li>
-          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-        </ul>
+
+      <div class="profile-icon">
+        <a href="{{ route('auth') }}"><i class="bi bi-person-circle"></i></a>
       </div>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <section id="hero" class="hero">
-    <h1>Selamat Datang di GalleRIn</h1>
-    <p>Temukan inspirasi, ide, dan kreativitas tanpa batas</p>
-    <a href="#pins" class="btn btn-light btn-lg mt-3">Jelajahi Pins</a>
-  </section>
-
-  <!-- Pins Section -->
-  <section id="pins" class="grid-container">
+  <!-- GRID CONTENT -->
+  <div class="masonry">
     <div class="pin">
-      <img src="https://source.unsplash.com/400x300/?nature" alt="Pin 1">
-      <div class="pin-body">
-        <h5>Keindahan Alam</h5>
-        <p>Inspirasi dari alam yang menenangkan.</p>
+      <img src="https://ik.imagekit.io/tvlk/blog/2020/01/keindahan-alam-indonesia-6-Wikipedia.jpg" alt="">
+      <div class="pin-info">
+        <h6>Keindahan Alam</h6>
+        <p>Inspirasi dari pemandangan tropis Indonesia.</p>
       </div>
     </div>
     <div class="pin">
-      <img src="https://source.unsplash.com/400x500/?city" alt="Pin 2">
-      <div class="pin-body">
-        <h5>Kota di Malam Hari</h5>
-        <p>Pemandangan kota yang menakjubkan.</p>
+      <img src="https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg" alt="">
+      <div class="pin-info">
+        <h6>Kota di Malam Hari</h6>
+        <p>Keindahan cahaya malam yang memukau.</p>
       </div>
     </div>
     <div class="pin">
-      <img src="https://source.unsplash.com/400x400/?food" alt="Pin 3">
-      <div class="pin-body">
-        <h5>Makanan Lezat</h5>
-        <p>Ide makanan yang menggugah selera.</p>
+      <img src="https://images.tokopedia.net/img/JFrBQq/2022/8/15/06fce354-78b3-4aa2-b070-efaa73343a81.jpg" alt="">
+      <div class="pin-info">
+        <h6>Makanan Lezat</h6>
+        <p>Ide resep untuk hari yang istimewa.</p>
       </div>
     </div>
     <div class="pin">
-      <img src="https://source.unsplash.com/400x600/?art" alt="Pin 4">
-      <div class="pin-body">
-        <h5>Karya Seni</h5>
-        <p>Inspirasi dari dunia seni dan lukisan.</p>
+      <img src="https://static.vecteezy.com/system/resources/previews/016/518/046/non_2x/rumah-joglo-aka-indonesian-traditional-house-free-vector.jpg" alt="">
+      <div class="pin-info">
+        <h6>Karya Seni</h6>
+        <p>Kreativitas tanpa batas dalam desain.</p>
       </div>
     </div>
     <div class="pin">
-      <img src="https://source.unsplash.com/400x350/?travel" alt="Pin 5">
-      <div class="pin-body">
-        <h5>Liburan Pantai</h5>
-        <p>Destinasi liburan yang indah dan santai.</p>
+      <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" alt="">
+      <div class="pin-info">
+        <h6>Gunung & Awan</h6>
+        <p>Rasakan ketenangan alam di puncak.</p>
       </div>
     </div>
-  </section>
+    <div class="pin">
+      <img src="https://images.unsplash.com/photo-1522202222270-5a5e8a1ba485" alt="">
+      <div class="pin-info">
+        <h6>Desain Interior</h6>
+        <p>Ruang sederhana penuh kehangatan.</p>
+      </div>
+    </div>
+  </div>
 
-  <!-- Contact Section -->
-  <section id="contact">
-    <h2>Hubungi Kami</h2>
-    <p>Ingin tahu lebih banyak? Kirimkan pesanmu.</p>
-    <form class="mx-auto" style="max-width:400px;">
-      <input type="text" class="form-control mb-2" placeholder="Nama" required>
-      <input type="email" class="form-control mb-2" placeholder="Email" required>
-      <textarea class="form-control mb-2" rows="3" placeholder="Pesan" required></textarea>
-      <button type="submit" class="btn w-100">Kirim</button>
-    </form>
-  </section>
+  <!-- Floating Upload Button -->
+  <button class="upload-btn">
+    <i class="bi bi-plus-lg"></i>
+  </button>
 
-  <!-- Footer -->
-  <footer>
-    <p>&copy; 2025 PinPage. All Rights Reserved.</p>
-  </footer>
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- JS tombol login -->
+  <!-- 🌗 DARK MODE SCRIPT -->
   <script>
-    const isLoggedIn = false;
-    const navbarMenu = document.getElementById('navbarMenu');
+    (function() {
+      const root = document.documentElement;
+      const toggleBtn = document.getElementById('themeToggle');
+      const icon = toggleBtn.querySelector('i');
+      const STORAGE_KEY = 'gallspace-theme';
 
-    function createLoginButton() {
-      const li = document.createElement('li');
-      li.className = 'nav-item';
-      const btn = document.createElement('button');
-      btn.className = 'nav-btn';
-      btn.innerText = 'Login';
-      btn.onmouseover = () => {
-        btn.style.transform = 'translateY(-3px)';
-        btn.style.boxShadow = '0 6px 12px rgba(0,0,0,0.2)';
-      };
-      btn.onmouseout = () => {
-        btn.style.transform = 'translateY(0)';
-        btn.style.boxShadow = 'none';
-      };
-      btn.onclick = () => alert('Login clicked');
-      li.appendChild(btn);
-      return li;
-    }
+      function updateIcon(isDark) {
+        icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+      }
 
-    if(!isLoggedIn){
-      navbarMenu.appendChild(createLoginButton());
-    }
+      const savedTheme = localStorage.getItem(STORAGE_KEY);
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let isDark = savedTheme ? savedTheme === 'dark' : systemPrefersDark;
+
+      root.classList.toggle('dark', isDark);
+      updateIcon(isDark);
+
+      toggleBtn.addEventListener('click', () => {
+        isDark = !isDark;
+        root.classList.toggle('dark', isDark);
+        localStorage.setItem(STORAGE_KEY, isDark ? 'dark' : 'light');
+        updateIcon(isDark);
+      });
+
+      if (!savedTheme) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+          const systemDark = e.matches;
+          root.classList.toggle('dark', systemDark);
+          updateIcon(systemDark);
+        });
+      }
+    })();
   </script>
 </body>
 </html>
