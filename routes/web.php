@@ -40,3 +40,16 @@ Route::middleware('auth')->group(function () {
     // Pengaturan (opsional)
     Route::get('/pengaturan', [ProfileController::class, 'settings'])->name('pengaturan');
 });
+// auth pint gallspace
+use App\Http\Controllers\PinController;
+
+Route::middleware('auth')->group(function () {
+    Route::post('/pins', [PinController::class, 'store'])->name('pins.store');
+    Route::post('/pins/{pin}', [PinController::class, 'update'])->name('pins.update');
+    });
+
+// route upload
+use App\Http\Controllers\PostController;
+
+Route::resource('posts', PostController::class);
+Route::post('posts', [PostController::class, 'store'])->name('posts.store');

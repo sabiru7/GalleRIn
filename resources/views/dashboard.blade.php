@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>GallSpace - Temukan Inspirasi Tanpa Batas</title>
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -151,34 +153,245 @@ html, body {height:100%; margin:0; font-family:"Poppins",system-ui,-apple-system
 
 <!-- MASONRY GRID -->
 <main id="pins" class="masonry" aria-live="polite" aria-label="Pins">
-  <!-- Pins akan ditambahkan melalui JS atau server-side -->
+  {{-- Render initial pins server-side --}}
+  @if(isset($pins) && $pins->count())
+    @foreach($pins as $pin)
+      @include('components.pin', ['pin' => $pin])
+    @endforeach
+  @endif
 </main>
+
+<!-- Hidden file input (triggered by buttons) -->
+<input type="file" id="pinFile" accept="image/*" style="display:none;" />
 
 <button id="uploadBtn" class="upload-btn" title="Unggah Gambar"><i class="bi bi-plus-lg"></i></button>
 <div id="toastWrap" class="toast-wrap" aria-live="polite" aria-atomic="true"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// JS Ultra Final: Theme toggle, like, share, download, upload, staggered animation
 (function(){
-  const ROOT=document.documentElement,TOGGLE=document.getElementById('themeToggle'),ICON=TOGGLE.querySelector('i'),KEY='gallspace-theme';
-  const saved=localStorage.getItem(KEY),sysDark=window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  // Elements
+  const ROOT=document.documentElement;
+  const TOGGLE=document.getElementById('themeToggle');
+  const ICON=TOGGLE.querySelector('i');
+  const KEY='gallspace-theme';
+  const saved=localStorage.getItem(KEY);
+  const sysDark=window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   let isDark=saved ? saved==='dark' : sysDark;
-  function applyTheme(d){ROOT.classList.toggle('dark',d); ICON.className=d?'bi bi-sun-fill':'bi bi-moon-stars-fill'; TOGGLE.classList.toggle('active',d);}
+
+  function applyTheme(d){
+    ROOT.classList.toggle('dark', d);
+    ICON.className = d ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+    TOGGLE.classList.toggle('active', d);
+  }
   applyTheme(isDark);
-  TOGGLE.addEventListener('click',()=>{isDark=!ROOT.classList.contains('dark'); applyTheme(isDark); localStorage.setItem(KEY,isDark?'dark':'light');});
-  if(!saved && window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>applyTheme(e.matches));
+  TOGGLE.addEventListener('click', ()=>{ isDark = !ROOT.classList.contains('dark'); applyTheme(isDark); localStorage.setItem(KEY, isDark ? 'dark' : 'light'); });
+  if(!saved && window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => applyTheme(e.matches));
 
   // Toast
-  function showToast(msg){const wrap=document.getElementById('toastWrap'); const t=document.createElement('div'); t.className='toast align-items-center text-bg-light border-0'; t.style.boxShadow='0 8px 20px rgba(0,0,0,0.12)'; t.innerHTML='<div class="d-flex"><div class="toast-body small">'+msg+'</div><button type="button" class="btn-close btn-close-dark me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>'; wrap.appendChild(t); const bs=new bootstrap.Toast(t,{delay:1400}); bs.show(); t.addEventListener('hidden.bs.toast',()=>t.remove());}
+  function showToast(msg){
+    const wrap=document.getElementById('toastWrap');
+    const t=document.createElement('div');
+    t.className='toast align-items-center text-bg-light border-0';
+    t.style.boxShadow='0 8px 20px rgba(0,0,0,0.12)';
+    t.innerHTML='<div class="d-flex"><div class="toast-body small">'+msg+'</div><button type="button" class="btn-close btn-close-dark me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>';
+    wrap.appendChild(t);
+    const bs=new bootstrap.Toast(t,{delay:1400});
+    bs.show();
+    t.addEventListener('hidden.bs.toast', ()=> t.remove());
+  }
 
-  // Pins stagger animation on scroll
-  const pinsObserver=new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show'); pinsObserver.unobserve(e.target);}});
-  },{threshold:0.1});
-  document.querySelectorAll('.pin').forEach(p=>pinsObserver.observe(p));
+  // Pins stagger animation on scroll (observer)
+  const pinsObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('show');
+        pinsObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
 
-  // Smooth like, share, download, comment, upload (retain previous logic)
+  // observe existing pins
+  document.querySelectorAll('.pin').forEach(p => pinsObserver.observe(p));
+
+  // Upload logic
+  const uploadBtn = document.getElementById('uploadBtn');
+  const tryUpload = document.getElementById('tryUpload');
+  const fileInput = document.getElementById('pinFile');
+  const pinsContainer = document.getElementById('pins');
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const uploadUrl = "{{ route('pins.store') }}"; // Blade route
+
+  // click handlers
+  uploadBtn.addEventListener('click', ()=> fileInput.click());
+  if(tryUpload) tryUpload.addEventListener('click', ()=> fileInput.click());
+
+  // Drag & drop (optional UX enhancement)
+  // allow dropping files onto the pins area
+  ;(function enableDragDrop(){
+    const area = document.getElementById('pins');
+    if(!area) return;
+    let dragCounter = 0;
+    area.addEventListener('dragenter', e => { e.preventDefault(); dragCounter++; area.style.opacity = '0.92'; });
+    area.addEventListener('dragover', e => e.preventDefault());
+    area.addEventListener('dragleave', e => { e.preventDefault(); dragCounter--; if(dragCounter<=0) area.style.opacity='1'; });
+    area.addEventListener('drop', e => {
+      e.preventDefault();
+      area.style.opacity='1';
+      dragCounter = 0;
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if(file) uploadFile(file);
+    });
+  })();
+
+  // file change event
+  fileInput.addEventListener('change', ()=>{
+    const file = fileInput.files[0];
+    if(!file) return;
+    uploadFile(file);
+    // reset input so same file can be selected again later
+    fileInput.value = '';
+  });
+
+  // upload function
+  function uploadFile(file){
+    // basic client-side validation
+    const maxMB = 5;
+    if(!file.type.startsWith('image/')){
+      showToast('Hanya file gambar yang diizinkan.');
+      return;
+    }
+    if(file.size > maxMB * 1024 * 1024){
+      showToast('Ukuran file terlalu besar. Maks '+maxMB+'MB.');
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('image', file);
+
+    // optional: you could append title/description fields here
+    // fd.append('title', 'Judul contoh');
+    // fd.append('description', 'Deskripsi contoh');
+
+    showToast('Mengunggah...');
+
+    fetch(uploadUrl, {
+      method: 'POST',
+      headers: { 'X-CSRF-TOKEN': csrfToken },
+      body: fd
+    })
+    .then(async res => {
+      const contentType = res.headers.get('Content-Type') || '';
+      // If server returns JSON
+      if(contentType.includes('application/json')){
+        return res.json();
+      }
+      // fallback: try text then parse
+      const text = await res.text();
+      try { return JSON.parse(text); } catch(e) { return { success: false, message: 'Response tidak valid.' }; }
+    })
+    .then(data => {
+      if(!data){
+        showToast('Tidak ada respon dari server.');
+        return;
+      }
+      if(data.success){
+        // server returns rendered HTML for the new pin in data.html
+        if(data.html){
+          const temp = document.createElement('div');
+          temp.innerHTML = data.html.trim();
+          const newPin = temp.firstElementChild;
+          if(newPin){
+            // prepend to grid
+            pinsContainer.prepend(newPin);
+            // animate in (give a tiny delay so CSS transition runs)
+            setTimeout(()=> newPin.classList.add('show'), 40);
+            // ensure observer won't try to re-add (safe)
+            // optional: observe if you want the intersection to control show
+            // pinsObserver.observe(newPin);
+          }
+        } else if(data.pin){
+          // fallback: if server returns pin data only, create client-side markup
+          const html = buildPinHtml(data.pin);
+          const temp = document.createElement('div');
+          temp.innerHTML = html;
+          const newPin = temp.firstElementChild;
+          pinsContainer.prepend(newPin);
+          setTimeout(()=> newPin.classList.add('show'), 40);
+        }
+        showToast('Gambar berhasil diunggah!');
+      } else {
+        const msg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Gagal upload.');
+        showToast(msg);
+      }
+    })
+    .catch(err=>{
+      console.error(err);
+      showToast('Terjadi kesalahan saat mengunggah.');
+    });
+  }
+
+  // helper: build pin html if server returns raw data (optional)
+  function buildPinHtml(pin){
+    // pin.image should be storage path, e.g. "pins/abc.jpg"
+    const src = pin.image ? ("{{ asset('storage') }}/" + pin.image).replace(/\/\//,'/') : '';
+    const title = pin.title || 'Untitled';
+    const desc = pin.description || '';
+    return `
+      <div class="pin">
+        <img src="${src}" alt="${escapeHtml(title)}">
+        <div class="pin-info">
+          <h6>${escapeHtml(title)}</h6>
+          <p>${escapeHtml(desc)}</p>
+        </div>
+        <div class="pin-overlay">
+          <div class="overlay-icons">
+            <button title="Like"><i class="bi bi-heart"></i></button>
+            <button title="Download"><i class="bi bi-download"></i></button>
+            <button title="Share"><i class="bi bi-share"></i></button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  // optional: delegate overlay button actions (like, download, share)
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.overlay-icons button, .pin-actions button');
+    if(!btn) return;
+    const pinEl = btn.closest('.pin');
+    if(btn.querySelector('.bi-heart')) {
+      // like toggling visual only (implement backend later)
+      btn.classList.toggle('liked');
+      if(btn.classList.contains('liked')) showToast('Disukai!');
+      else showToast('Batal suka');
+    } else if(btn.querySelector('.bi-download')) {
+      // find image & download
+      if(!pinEl) return;
+      const img = pinEl.querySelector('img');
+      if(!img) return;
+      const url = img.src;
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = ''; // let browser determine name
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } else if(btn.querySelector('.bi-share')) {
+      // share via navigator.share if available
+      const img = pinEl ? pinEl.querySelector('img') : null;
+      if(navigator.share){
+        navigator.share({ title: document.title, url: img ? img.src : location.href }).catch(()=>{});
+      } else {
+        showToast('Fitur share tidak tersedia di browser ini.');
+      }
+    }
+  });
+
 })();
 </script>
 </body>
